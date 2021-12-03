@@ -1,7 +1,7 @@
 /*
  * @Author: yang
  * @Date: 2021-12-03 19:26:10
- * @LastEditTime: 2021-12-03 23:34:12
+ * @LastEditTime: 2021-12-03 23:48:45
  * @LastEditors: yang
  * @Description: 我好帅！
  * @FilePath: \im_golang_pratice\src\user.go
@@ -67,12 +67,27 @@ func (t *User) DealMessage(msg string) {
 		t.SendMsg("/help: 查看帮助")
 		t.SendMsg("/list: 查看在线用户")
 		t.SendMsg("/exit: 退出聊天室")
+		t.SendMsg("/to <name> <msg>: 发送私聊消息")
+		t.SendMsg("/group <msg>: 发送群聊消息")
+		t.SendMsg("/name <name>: 修改昵称")
 	} else if msg == "/list" {
 		t.SendMsg("在线用户：")
 		t.server.mapLock.Lock()
 		for _, user := range t.server.OnlineMap {
 			sendMsg := "[" + user.Addr + "]" + user.Name
 			t.SendMsg(sendMsg)
+		}
+		t.server.mapLock.Unlock()
+	} else if len(msg) > 7 && msg[:6] == "/name " {
+		newName := msg[6:]
+		t.server.mapLock.Lock()
+		if _, ok := t.server.OnlineMap[newName]; ok {
+			t.SendMsg("用户名已存在")
+		} else {
+			t.server.OnlineMap[newName] = t
+			delete(t.server.OnlineMap, t.Name)
+			t.Name = newName
+			t.SendMsg("您已改名为：" + newName)
 		}
 		t.server.mapLock.Unlock()
 	} else {
