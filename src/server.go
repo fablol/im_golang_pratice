@@ -1,7 +1,7 @@
 /*
  * @Author: yang
  * @Date: 2021-12-03 07:38:46
- * @LastEditTime: 2021-12-03 23:33:12
+ * @LastEditTime: 2021-12-04 00:03:37
  * @LastEditors: yang
  * @Description: 我好帅！
  * @FilePath: \im_golang_pratice\src\server.go
@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"time"
 )
 
 type Server struct {
@@ -61,6 +62,8 @@ func (t *Server) Handler(conn net.Conn) {
 
 	user.Online()
 
+	isLive := make(chan bool)
+
 	go func() {
 		buf := make([]byte, 4096)
 		for {
@@ -78,10 +81,23 @@ func (t *Server) Handler(conn net.Conn) {
 
 			msg := string(buf[:n-1])
 			user.DealMessage(msg)
+
+			isLive <- true
 		}
 	}()
 
-	select {}
+	for {
+		select {
+		case <-isLive:
+			// fmt.Println("conn is live")
+		case <-time.After(time.Minute * 10):
+			user.SendMsg("你已经超时了，请重新登录")
+
+			close(user.C)
+			conn.Close()
+			return
+		}
+	}
 }
 
 func (t *Server) Start() {
