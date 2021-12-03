@@ -1,7 +1,7 @@
 /*
  * @Author: yang
  * @Date: 2021-12-04 00:26:33
- * @LastEditTime: 2021-12-04 00:47:25
+ * @LastEditTime: 2021-12-04 01:26:07
  * @LastEditors: yang
  * @Description: 我好帅！
  * @FilePath: \im_golang_pratice\src\client\client.go
@@ -10,9 +10,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"net"
+	"os"
 )
 
 type Client struct {
@@ -39,6 +42,43 @@ func NewClient(serverIp string, serverPort int) *Client {
 	return client
 }
 
+func (c *Client) menu() bool {
+	// todo
+	return true
+}
+
+func (c *Client) Run() {
+	c.menu()
+	fmt.Println("请输入消息:")
+	var msg string
+	for {
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			msg = scanner.Text()
+			break
+		}
+
+		if msg == "exit" {
+			break
+		}
+		c.Send(msg)
+		msg = ""
+	}
+}
+
+func (c *Client) Send(msg string) {
+	_, err := c.conn.Write([]byte(msg + "\n"))
+	if err != nil {
+		fmt.Println("conn.Write error:", err)
+		return
+	}
+
+}
+
+func (c *Client) Recv() {
+	io.Copy(os.Stdout, c.conn) // 阻塞接收服务端发送的消息
+}
+
 var serverIp string
 var serverPort int
 
@@ -57,6 +97,6 @@ func main() {
 	}
 
 	fmt.Println("client:", client.ServerIp, client.ServerPort)
-
-	select {}
+	go client.Recv()
+	client.Run()
 }

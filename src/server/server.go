@@ -1,10 +1,10 @@
 /*
  * @Author: yang
  * @Date: 2021-12-03 07:38:46
- * @LastEditTime: 2021-12-04 00:03:37
+ * @LastEditTime: 2021-12-04 01:16:25
  * @LastEditors: yang
  * @Description: 我好帅！
- * @FilePath: \im_golang_pratice\src\server.go
+ * @FilePath: \im_golang_pratice\src\server\server.go
  * -.-
  */
 package main
