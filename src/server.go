@@ -1,7 +1,7 @@
 /*
  * @Author: yang
  * @Date: 2021-12-03 07:38:46
- * @LastEditTime: 2021-12-03 23:08:05
+ * @LastEditTime: 2021-12-03 23:33:12
  * @LastEditors: yang
  * @Description: 我好帅！
  * @FilePath: \im_golang_pratice\src\server.go
@@ -77,7 +77,7 @@ func (t *Server) Handler(conn net.Conn) {
 			}
 
 			msg := string(buf[:n-1])
-			user.DoMessage(msg)
+			user.DealMessage(msg)
 		}
 	}()
 
