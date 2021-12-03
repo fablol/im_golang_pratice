@@ -1,7 +1,7 @@
 /*
  * @Author: yang
  * @Date: 2021-12-03 07:38:46
- * @LastEditTime: 2021-12-03 22:47:36
+ * @LastEditTime: 2021-12-03 23:08:05
  * @LastEditors: yang
  * @Description: 我好帅！
  * @FilePath: \im_golang_pratice\src\server.go
@@ -57,12 +57,9 @@ func (t *Server) BroadCast(user *User, msg string) {
 func (t *Server) Handler(conn net.Conn) {
 	fmt.Println("conn sucess !")
 
-	user := NewUser(conn)
-	t.mapLock.Lock()
-	t.OnlineMap[user.Name] = user
-	t.mapLock.Unlock()
+	user := NewUser(conn, t)
 
-	t.BroadCast(user, "online")
+	user.Online()
 
 	go func() {
 		buf := make([]byte, 4096)
@@ -70,7 +67,7 @@ func (t *Server) Handler(conn net.Conn) {
 			n, err := conn.Read(buf)
 
 			if n == 0 {
-				t.BroadCast(user, "offline")
+				user.Offline()
 				return
 			}
 
@@ -80,7 +77,7 @@ func (t *Server) Handler(conn net.Conn) {
 			}
 
 			msg := string(buf[:n-1])
-			t.BroadCast(user, msg)
+			user.DoMessage(msg)
 		}
 	}()
 
