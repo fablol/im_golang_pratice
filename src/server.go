@@ -1,7 +1,7 @@
 /*
  * @Author: yang
  * @Date: 2021-12-03 07:38:46
- * @LastEditTime: 2021-12-03 19:43:23
+ * @LastEditTime: 2021-12-03 22:47:36
  * @LastEditors: yang
  * @Description: 我好帅！
  * @FilePath: \im_golang_pratice\src\server.go
@@ -63,6 +63,26 @@ func (t *Server) Handler(conn net.Conn) {
 	t.mapLock.Unlock()
 
 	t.BroadCast(user, "online")
+
+	go func() {
+		buf := make([]byte, 4096)
+		for {
+			n, err := conn.Read(buf)
+
+			if n == 0 {
+				t.BroadCast(user, "offline")
+				return
+			}
+
+			if err != nil {
+				fmt.Println("read err:", err)
+				return
+			}
+
+			msg := string(buf[:n-1])
+			t.BroadCast(user, msg)
+		}
+	}()
 
 	select {}
 }
